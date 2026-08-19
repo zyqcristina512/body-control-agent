@@ -23680,6 +23680,7 @@ function saveSnapData() {
   let added = 0;
   snapParsed.forEach(r => {
     const rt = r.recType || r.type;
+    if (!r.date) return; // 缺日期的不录入，避免脏数据
     if (rt === 'bodyScale') {
       const exists = db.bodyScale.find(x => x.date === r.date);
       if (!exists) {
@@ -23703,9 +23704,9 @@ function saveSnapData() {
       else { exists.hours = r.hours; if (r.score) exists.score = r.score; added++; }
     }
   });
-  db.bodyScale.sort((a,b) => a.date.localeCompare(b.date));
-  db.exercise.sort((a,b) => a.date.localeCompare(b.date));
-  db.sleep.sort((a,b) => a.date.localeCompare(b.date));
+  db.bodyScale.sort((a,b) => (a.date||'').localeCompare(b.date||''));
+  db.exercise.sort((a,b) => (a.date||'').localeCompare(b.date||''));
+  db.sleep.sort((a,b) => (a.date||'').localeCompare(b.date||''));
   saveDB(db);
   showToast('✅ 录入 ' + added + ' 条数据');
   snapFiles = []; snapParsed = [];
@@ -23768,9 +23769,9 @@ function saveFormData() {
     else db.sleep.push(sRec);
   }
 
-  db.bodyScale.sort((a,b) => a.date.localeCompare(b.date));
-  db.exercise.sort((a,b) => a.date.localeCompare(b.date));
-  db.sleep.sort((a,b) => a.date.localeCompare(b.date));
+  db.bodyScale.sort((a,b) => (a.date||'').localeCompare(b.date||''));
+  db.exercise.sort((a,b) => (a.date||'').localeCompare(b.date||''));
+  db.sleep.sort((a,b) => (a.date||'').localeCompare(b.date||''));
   saveDB(db);
   strengthEntries = [];
   cardioEntries = [];
@@ -23801,7 +23802,7 @@ function renderHistory() {
 
   // 体脂秤
   const bsList = document.getElementById('h-body-scale-list');
-  const sorted = [...bs].sort((a,b)=>b.date.localeCompare(a.date));
+  const sorted = [...bs].sort((a,b)=>(b.date||"").localeCompare(a.date||""));
   bsList.innerHTML = sorted.length === 0
     ? '<div style="color:var(--dim);font-size:12px;padding:10px;text-align:center">暂无记录</div>'
     : sorted.map(r => {
@@ -23813,7 +23814,7 @@ function renderHistory() {
 
   // 运动记录
   const exList = document.getElementById('h-exercise-list');
-  const exSorted = [...ex].sort((a,b)=>b.date.localeCompare(a.date));
+  const exSorted = [...ex].sort((a,b)=>(b.date||"").localeCompare(a.date||""));
   exList.innerHTML = exSorted.length === 0
     ? '<div style="color:var(--dim);font-size:12px;padding:10px;text-align:center">暂无记录</div>'
     : exSorted.map((r, i) => {
@@ -23829,7 +23830,7 @@ function renderHistory() {
 
   // 睡眠记录
   const slList = document.getElementById('h-sleep-list');
-  const slSorted = [...sl].sort((a,b)=>b.date.localeCompare(a.date));
+  const slSorted = [...sl].sort((a,b)=>(b.date||"").localeCompare(a.date||""));
   slList.innerHTML = slSorted.length === 0
     ? '<div style="color:var(--dim);font-size:12px;padding:10px;text-align:center">暂无记录</div>'
     : slSorted.map(r => {
@@ -25040,7 +25041,7 @@ function flowBackToExerciseRecords(ex) {
   const rec = { date:today, time:'训练', name:ex.name, type:ex.type==='strength'?'力量':'有氧', dur:dur, cal:cal||0, hr:ex.actualHR||null };
   const ei = db.exercise.findIndex(r => r.date === today && r.name === ex.name && r.time === '训练');
   if (ei >= 0) db.exercise[ei] = rec; else db.exercise.push(rec);
-  db.exercise.sort((a,b) => a.date.localeCompare(b.date));
+  db.exercise.sort((a,b) => (a.date||'').localeCompare(b.date||''));
   saveDB(db);
 }
 
